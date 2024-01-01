@@ -9,7 +9,8 @@ qbt_username = 'admin'               # Change this to your qBittorrent username
 qbt_password = 'password1'           # Change this to your qBittorrent password
 
 # Directory path to check for folders
-download_directory = 'D:/Completed/sonarr-tv'  # Change to your desired directory
+download_directory = 'D:/Completed/'  # Change to your desired directory
+excluded_folders = ["sonarr-tv", "radarr"]
 
 def get_active_qbittorrent_folders():
     qbt_client = qbittorrentapi.Client(host=qbt_host, username=qbt_username, password=qbt_password)
@@ -30,13 +31,15 @@ def delete_folders_not_in_qbittorrent(active_folders, download_directory):
         for folder in dirs:
             folder_name = os.path.basename(folder)
             # Check if the folder name is not in the active_folders set
-            if folder_name not in active_folders:
+            if folder_name not in active_folders and folder_name not in excluded_folders:
                 folder_path = os.path.join(root, folder)
                 print(f"Deleting folder: {folder_path}")
                 shutil.rmtree(folder_path)
 
 if __name__ == "__main__":
     try:
+        cleanup_interval = 3600  # Cleanup every 3600 seconds (1 hour)
+        
         while True:
             print("Scanning downloads directory...")
 
@@ -52,7 +55,10 @@ if __name__ == "__main__":
 
             print("Cleanup completed successfully.")
 
-            # Sleep for 60 minutes (3600 seconds) before the next iteration
-            time.sleep(3600)
+            # Countdown timer for the next cleanup
+            for remaining_time in range(cleanup_interval, 0, -1):
+                print(f"Next cleanup in {remaining_time} seconds", end="\r")
+                time.sleep(1)
+
     except Exception as e:
         print(f"An error occurred: {e}")
