@@ -82,7 +82,11 @@ def start_cleanup():
         for torrent in active_torrents:
             print(torrent)
 
-        # Rest of your cleanup code here...
+            # Delete subdirectories within 'sonarr-tv' and 'radarr'
+            for excluded_folder in excluded_folders:
+                excluded_folder_path = os.path.join(download_directory, excluded_folder)
+                if os.path.exists(excluded_folder_path):
+                    delete_subdirectories_within_folder(excluded_folder_path, qbt_client)
 
         print(f"{green}Cleanup completed successfully.{reset_color}")
         cleanup_in_progress = False
@@ -92,19 +96,21 @@ def start_cleanup():
         cleanup_in_progress = False
         
 def display_countdown_timer(timer_duration):
-    cleanup_in_progress = False  # Flag to track cleanup state
     for remaining_time in range(timer_duration, 0, -1):
         sys.stdout.write(f"\rNext cleanup in {red}{remaining_time} seconds{reset_color}")
         sys.stdout.flush()
         if msvcrt.kbhit() and msvcrt.getch() == b'\r':
-            if not cleanup_in_progress:
-                os.system('cls' if os.name == 'nt' else 'clear')
-                print("Starting cleanup...")
-                cleanup_in_progress = True
-                start_cleanup()
-                cleanup_in_progress = False
-                time.sleep(2)  # Sleep to prevent accidental re-triggering
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print("Starting cleanup...")
+            start_cleanup()
+            break  # Exit the countdown loop when Enter is pressed
         time.sleep(1)
+    else:
+        # The loop finished without Enter being pressed, so start cleanup
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("Starting cleanup...")
+        start_cleanup()
+
     sys.stdout.write("\r" + " " * 40 + "\r")  # Clear countdown timer line
     sys.stdout.flush()
 
