@@ -89,6 +89,7 @@ def start_cleanup():
                     delete_subdirectories_within_folder(excluded_folder_path, qbt_client)
 
         print(f"{green}Cleanup completed successfully.{reset_color}")
+        print(f"{green}Push Enter to run the clean up early.{reset_color}")
         cleanup_in_progress = False
 
     except Exception as e:
@@ -131,8 +132,8 @@ if __name__ == "__main__":
         # Set up Ctrl+C signal handler
         signal.signal(signal.SIGINT, exit_handler)
 
-        print("Starting script...")
-        print("Press Enter at any point to run cleanup.")
+        print(f"{green}Starting script...{reset_color}")
+        print(f"{green}Push Enter to run the clean up early.{reset_color}")
 
         while True:
             display_countdown_timer(cleanup_interval)  # Start countdown
